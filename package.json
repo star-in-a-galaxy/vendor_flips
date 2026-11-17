@@ -1,0 +1,17 @@
+{
+  "name": "wowf-vendor-flips",
+  "version": "2.0.0",
+  "private": true,
+  "description": "Finds WoW Forever crafts that sell to a vendor for more than their materials cost. Static site for GitHub Pages.",
+  "type": "module",
+  "scripts": {
+    "start": "node scripts/serve.mjs",
+    "build": "node scripts/build-data.mjs",
+    "update": "node scripts/update-data.mjs",
+    "test": "node --test test/unit.test.mjs",
+    "test:browser": "node test/browser.mjs"
+  },
+  "devDependencies": {
+    "playwright-core": "^1.49.0"
+  }
+}

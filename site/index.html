@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Vendor Flips for WoW Forever</title>
+<meta name="description" content="Find WoW Forever crafts that sell to a vendor for more than their materials cost on the auction house.">
+<meta name="color-scheme" content="dark light">
+<link rel="icon" href="favicon.svg" type="image/svg+xml">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Alegreya+Sans:wght@400;500;700;800&display=swap">
+<link rel="stylesheet" href="styles.css">
+<script type="module" src="js/app.js"></script>
+</head>
+<body>
+<a class="skip" href="#list">Skip to flips</a>
+
+<header class="top">
+  <h1 class="brand">Vendor Flips <span>for WoW Forever</span></h1>
+
+  <form class="controls" id="controls" onsubmit="return false">
+    <label>Market
+      <select id="market" disabled><option>Loading markets…</option></select>
+    </label>
+    <label>Pay for materials
+      <select id="basis">
+        <option value="typical">Typical AH price</option>
+        <option value="floor">Lowest AH listing</option>
+      </select>
+    </label>
+    <label>Reputation
+      <select id="rep">
+        <option value="0">Neutral or Friendly</option>
+        <option value="0.1">Honored or higher (10% off)</option>
+      </select>
+    </label>
+    <label>Legacy Bartering
+      <select id="barter">
+        <option value="0">Not learned</option>
+        <option value="0.05">Rank 1 (5% off)</option>
+        <option value="0.1">Rank 2 (10% off)</option>
+      </select>
+    </label>
+  </form>
+
+  <div class="statusbar">
+    <p class="status" id="status" role="status" aria-live="polite">Loading recipes…</p>
+    <button type="button" class="btn" id="refresh" disabled>Refresh prices</button>
+  </div>
+</header>
+
+<main class="layout">
+  <section class="flips" aria-labelledby="flips-title">
+    <div class="filters">
+      <h2 id="flips-title" class="visually-hidden">Flips</h2>
+      <input type="search" id="search" placeholder="Search recipes or materials" aria-label="Search recipes or materials">
+      <div class="profs" id="profs" role="group" aria-label="Professions"></div>
+      <div class="filter-row">
+        <label class="inline sort-select">Sort by
+          <select id="sort"></select>
+        </label>
+        <label class="check"><input type="checkbox" id="losing"> Show crafts that lose money</label>
+      </div>
+
+      <details class="more" id="more">
+        <summary>More filters <span class="more-count" id="moreCount"></span></summary>
+        <div class="more-body">
+          <fieldset class="skills">
+            <legend>Your skill level</legend>
+            <p class="hint">Hides recipes you can't learn yet. Leave blank to show every recipe.</p>
+            <div class="skill-grid" id="skills"></div>
+          </fieldset>
+
+          <fieldset class="mins">
+            <legend>Only show flips with at least</legend>
+            <label for="minMargin">Margin
+              <span class="suffix"><input type="number" id="minMargin" min="0" max="1000" step="1" inputmode="numeric" placeholder="0"> %</span>
+            </label>
+            <label for="minProfit">Profit per craft
+              <input type="text" id="minProfit" placeholder="e.g. 50s or 1g 20s" aria-describedby="minProfitErr">
+              <span class="field-err" id="minProfitErr"></span>
+            </label>
+            <label for="minHour">Profit per hour
+              <input type="text" id="minHour" placeholder="e.g. 5g" aria-describedby="minHourErr">
+              <span class="field-err" id="minHourErr"></span>
+            </label>
+            <label class="check"><input type="checkbox" id="hideStale"> Hide flips that use old AH prices</label>
+          </fieldset>
+
+          <fieldset class="timing">
+            <legend>Crafting speed</legend>
+            <label for="gap">Time between crafts
+              <span class="suffix"><input type="number" id="gap" min="0" max="10" step="0.1" inputmode="decimal"> seconds</span>
+            </label>
+            <p class="hint">Used for profit per hour. With Create All the next craft starts right after the last one,
+              so this is mostly your latency.</p>
+          </fieldset>
+
+          <p class="more-actions"><button type="button" class="btn" id="resetFilters">Reset filters</button></p>
+        </div>
+      </details>
+    </div>
+
+    <div class="list-head" id="listHead">
+      <button type="button" class="sort" data-sort="name">Recipe</button>
+      <button type="button" class="sort num" data-sort="cost">Materials</button>
+      <button type="button" class="sort num" data-sort="revenue">Vendor pays</button>
+      <button type="button" class="sort num" data-sort="profit">Profit</button>
+      <button type="button" class="sort num" data-sort="hour">Per hour</button>
+      <button type="button" class="sort num" data-sort="margin">Margin</button>
+    </div>
+
+    <ol class="list" id="list" tabindex="-1"></ol>
+    <p class="list-note" id="listNote"></p>
+  </section>
+
+  <aside class="detail" id="detail" aria-labelledby="detail-title" hidden>
+    <div class="detail-inner" id="detailInner"></div>
+  </aside>
+</main>
+
+<footer class="foot">
+  <p>Recipes from the WoW Forever client (build <span id="build">…</span>). Auction prices from
+    <a href="https://ahprice.com">ahprice.com</a>, vendor prices from
+    <a href="https://www.wowhead.com/forever">Wowhead</a>. Unofficial fan tool, not affiliated with Blizzard Entertainment.</p>
+</footer>
+</body>
+</html>

@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>WoW Forever · Vendor Flip Calculator</title>
+  <meta name="description" content="A vendor-flip and crafting profit calculator for World of Warcraft: Forever. Sort every profession recipe by profit per craft and profit per hour, with reputation and Legacy Bartering discounts." />
+  <link rel="stylesheet" href="css/styles.css" />
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🪙</text></svg>" />
+</head>
+<body>
+  <header class="site-header">
+    <div class="wrap">
+      <h1>Vendor Flip <span class="accent">Calculator</span></h1>
+      <p class="subtitle">World of Warcraft: Forever — craft what's worth crafting, sell what's worth selling.</p>
+      <p class="build-note" id="buildNote"></p>
+    </div>
+  </header>
+
+  <main class="wrap">
+    <!-- Filters -->
+    <section class="panel controls" aria-label="Filters and settings">
+      <div class="controls-row">
+        <label class="field grow">
+          <span>Search</span>
+          <input type="search" id="search" placeholder="Recipe, output, or material…" autocomplete="off" />
+        </label>
+        <label class="field">
+          <span>Profession</span>
+          <select id="prof"><option value="">All professions</option></select>
+        </label>
+        <label class="field">
+          <span>Obtained via</span>
+          <select id="source">
+            <option value="">Any</option>
+            <option value="vendor">Vendor</option>
+            <option value="ah">Auction House</option>
+            <option value="both">Both</option>
+          </select>
+        </label>
+        <label class="field">
+          <span>Skill min</span>
+          <input type="number" id="skillMin" min="0" max="300" value="0" />
+        </label>
+        <label class="field">
+          <span>Skill max</span>
+          <input type="number" id="skillMax" min="0" max="400" value="400" />
+        </label>
+      </div>
+
+      <div class="controls-row">
+        <label class="field">
+          <span>Reputation</span>
+          <select id="rep" title="Vendor price discount by faction standing (caps at Honored)">
+            <option value="0">Neutral / Friendly (0%)</option>
+            <option value="10">Honored (10%)</option>
+          </select>
+        </label>
+        <label class="field">
+          <span>Legacy Bartering</span>
+          <select id="barter" title="Legacy perk: Bartering (vendor items cost less)">
+            <option value="0">0 / 2 ranks</option>
+            <option value="5">Rank 1 (−5%)</option>
+            <option value="10">Rank 2 (−10%)</option>
+          </select>
+        </label>
+        <label class="field">
+          <span>Auction house cut</span>
+          <select id="ahcut" title="Fee taken out of an AH sale">
+            <option value="0">None (0%)</option>
+            <option value="5">Faction AH (5%)</option>
+            <option value="15">Neutral AH (15%)</option>
+          </select>
+        </label>
+        <label class="field">
+          <span>Buy materials at</span>
+          <select id="matmode" title="Which price to use for each material">
+            <option value="min">Cheapest (vendor vs AH)</option>
+            <option value="ah">Auction house</option>
+            <option value="vendor">Vendor</option>
+          </select>
+        </label>
+        <label class="field">
+          <span>Sell output to</span>
+          <select id="sellmode" title="Revenue source for the crafted item">
+            <option value="ah">Auction house</option>
+            <option value="vendor">Vendor</option>
+          </select>
+        </label>
+        <label class="field small">
+          <span>Craft overhead</span>
+          <input type="number" id="overhead" min="0" max="60" step="0.5" value="1" title="Extra seconds per craft (looting, clicking) added to the cast time" />
+        </label>
+        <label class="field check">
+          <input type="checkbox" id="onlyProfit" />
+          <span>Profitable only</span>
+        </label>
+        <label class="field check">
+          <input type="checkbox" id="hideMissing" />
+          <span>Hide missing prices</span>
+        </label>
+      </div>
+
+      <div class="controls-row ah-row">
+        <label class="field grow">
+          <span>Market (auction house)</span>
+          <select id="realm"><option value="">Loading markets…</option></select>
+        </label>
+        <label class="field">
+          <span>Price basis</span>
+          <select id="basis" title="Which AH value to use for materials and crafted items">
+            <option value="floor">Lowest buyout</option>
+            <option value="avg">Market average</option>
+            <option value="true">True value</option>
+          </select>
+        </label>
+        <button id="loadAh" class="btn accent">Load live AH prices</button>
+        <span id="ahStatus" class="ah-status">No prices loaded — click “Load live AH prices”.</span>
+      </div>
+    </section>
+
+    <!-- Summary -->
+    <section class="stats" id="stats"></section>
+
+    <!-- Table -->
+    <section class="panel table-panel">
+      <div class="table-scroll">
+        <table id="table">
+          <thead>
+            <tr>
+              <th data-sort="n" class="sortable">Recipe</th>
+              <th data-sort="p" class="sortable">Profession</th>
+              <th data-sort="s" class="sortable num">Skill</th>
+              <th data-sort="src" class="sortable">Obtained</th>
+              <th data-sort="cast" class="sortable num">Cast</th>
+              <th data-sort="cost" class="sortable num">Cost</th>
+              <th data-sort="sell" class="sortable num">Sell</th>
+              <th data-sort="profit" class="sortable num">Profit / craft</th>
+              <th data-sort="ph" class="sortable num">Profit / hour</th>
+            </tr>
+          </thead>
+          <tbody id="rows"></tbody>
+        </table>
+      </div>
+      <div class="table-foot" id="tableFoot"></div>
+    </section>
+
+    <!-- Detail panel -->
+    <section class="panel detail hidden" id="detail" aria-live="polite"></section>
+
+    <footer class="site-footer">
+      <p>
+        Unofficial fan tool. Not affiliated with or endorsed by Blizzard Entertainment.
+        World of Warcraft, Warcraft and Blizzard are trademarks or registered trademarks of Blizzard Entertainment, Inc.
+      </p>
+      <p>
+        Recipe data (reagents, results, cast times, cooldowns, skill thresholds) extracted from the WoW Forever game client
+        (build <span id="footBuild">—</span>) and derived from
+        <a href="https://github.com/MAF2414/wow-forever-talents" target="_blank" rel="noopener">MAF2414/wow-forever-talents</a>.
+        Vendor material prices from the <a href="https://wowforever.wiki.fextralife.com/Vendors" target="_blank" rel="noopener">WoW Forever Wiki</a>
+        and <a href="https://www.wow-professions.com/forever" target="_blank" rel="noopener">wow-professions.com</a>.
+        Live auction-house prices from <a href="https://ahprice.com" target="_blank" rel="noopener">ahprice.com</a>.
+      </p>
+    </footer>
+  </main>
+
+  <script src="js/app.js"></script>
+</body>
+</html>

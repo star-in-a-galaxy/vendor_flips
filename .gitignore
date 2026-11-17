@@ -1,0 +1,12 @@
+# Node
+node_modules/
+
+# Raw client extraction (6.7 MB). Download it with `npm run update`.
+data-src/professions-data.json
+
+# Test output
+test/shots/
+
+# Local scratch
+*.log
+.DS_Store
